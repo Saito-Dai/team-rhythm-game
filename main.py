@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 pygame.init()
 
@@ -11,18 +12,14 @@ pygame.display.set_caption("RhythmGame")
 clock = pygame.time.Clock()
 FPS = 60
 
-#レーンの描画
-LANE_HEIGHT = 80
-LANE_GAP = 20
-NUM_LANES = 4
-LANE_Y = [100 + i*(LANE_HEIGHT + LANE_GAP) for i in range(NUM_LANES)]
-HIT_LINE_X = 150
-LANE_END_X = SCREEN_WIDTH -200
-
-def draw_lanes():
-    for y in LANE_Y:
-        pygame.draw.rect(screen,(50,50,50),(HIT_LINE_X, y, LANE_END_X - HIT_LINE_X, LANE_HEIGHT))
-    pygame.draw.line(screen, (255,255,255), (HIT_LINE_X, 0), (HIT_LINE_X,SCREEN_HEIGHT), 2)
+BASE_DIR = os.path.dirname(__file__)
+def load_image(name):
+    path = os.path.join(BASE_DIR,"assets","image",name)
+    return pygame.image.load(path).convert_alpha()
+# 侍の画像は一時的にmain.pyに組み込みます。
+# もう一枚画像を作る際にロードフォルダを作って呼び出せるように修正します。
+samurai_img = load_image("Samurai.png")
+samurai_img = pygame.transform.smoothscale(samurai_img, (200, 300))
 
 def main():
     running = True
@@ -30,12 +27,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
-        screen.fill((0,0,0))
-        draw_lanes()
+
+        # 侍を左下に描画
+        img_w, img_h = samurai_img.get_size()
+        margin_x, margin_y = 50, 30
+        pos_x = margin_x
+        pos_y = SCREEN_HEIGHT - img_h - margin_y
+        screen.blit(samurai_img, (pos_x, pos_y))
         
         pygame.display.flip()
-        
         clock.tick(FPS)
         
     pygame.quit()
