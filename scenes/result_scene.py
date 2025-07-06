@@ -2,59 +2,59 @@
 import pygame
 import os
 
-# --- 이 파일 내에서 직접 상수를 정의합니다 ---
-# 화면 설정 (main.py의 SCREEN_WIDTH, SCREEN_HEIGHT와 일치해야 합니다)
-SCREEN_WIDTH = 1000  # main.py에서 정의된 값과 동일하게 설정
-SCREEN_HEIGHT = 600  # main.py에서 정의된 값과 동일하게 설정
+# --- このファイル内で直接定数を定義します ---
+# 画面設定 (main.pyのSCREEN_WIDTH, SCREEN_HEIGHTと一致する必要があります)
+SCREEN_WIDTH = 1000  # main.pyで定義された値と同じに設定
+SCREEN_HEIGHT = 600  # main.pyで定義された値と同じに設定
 
-# 색상 정의 (RGB 형식)
+# 色の定義 (RGB形式)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-# 필요하다면 다른 색상도 여기에 정의할 수 있습니다.
+# 必要であれば他の色もここに定義できます。
 
-# 게임 상태 (main.py의 GameManager와 일치해야 합니다)
-# 이 상수는 GameManager에서 씬 전환 시 사용되므로, GameManager와 동일하게 유지해야 합니다.
+# ゲーム状態 (main.pyのGameManagerと一致する必要があります)
+# これらの定数はGameManagerでシーン遷移時に使用されるため、GameManagerと同じに保つ必要があります。
 GAME_STATE_PLAYING = 1
 GAME_STATE_START_SCREEN = 0
-GAME_STATE_RESULT_SCREEN = 3 # 이 씬 자체의 상태
+GAME_STATE_RESULT_SCREEN = 3 # このシーン自身の状態
 
 # ----------------------------------------
 
-# BaseScene 클래스를 사용하지 않으므로, ResultScene은 직접 필요한 메서드를 구현합니다.
-# GameManager가 호출할 update, draw, handle_event 메서드를 정의해야 합니다.
-class ResultScene: # BaseScene을 상속받지 않습니다.
+# BaseSceneクラスを使用しないため、ResultSceneは必要なメソッドを直接実装します。
+# GameManagerが呼び出す update, draw, handle_event メソッドを定義する必要があります。
+class ResultScene: # BaseSceneを継承しません。
     def __init__(self, game_manager):
-        # GameManager 인스턴스를 저장하여 씬 전환 등에 사용합니다.
+        # GameManagerインスタンスを保存し、シーン遷移などに使用します。
         self.game_manager = game_manager 
         self.final_score = 0
         self.judgment_counts = {}
 
-        # 폰트 로드 (assets/fonts 폴더에 your_font.ttf 파일이 있다고 가정)
+        # フォントのロード (assets/fontsフォルダにyour_font.ttfファイルがあると仮定)
         try:
-            # 폰트 파일을 정확히 지정 (예: NotoSansJP-Regular.ttf)
-            # 프로젝트 구조에 따라 'assets', 'fonts', 'your_font.ttf' 경로를 확인하세요.
+            # フォントファイルを正確に指定 (例: NotoSansJP-Regular.ttf)
+            # プロジェクト構造に合わせて 'assets', 'fonts', 'your_font.ttf' のパスを確認してください。
             self.font_large = pygame.font.Font(os.path.join('assets', 'fonts', 'your_font.ttf'), 74)
             self.font_small = pygame.font.Font(os.path.join('assets', 'fonts', 'your_font.ttf'), 50)
-        except Exception as e: # 폰트 파일이 없거나 로드 실패 시 기본 폰트 사용
+        except Exception as e: # フォントファイルがないかロードに失敗した場合、デフォルトフォントを使用
             print(f"警告: カスタムフォントをロードできませんでした: {e}。デフォルトフォントを使用します。")
             self.font_large = pygame.font.Font(None, 74)
             self.font_small = pygame.font.Font(None, 50)
 
-        # UI 요소 텍스트 렌더링
+        # UI要素のテキストレンダリング
         self.restart_button_text = self.font_small.render("Restart", True, WHITE)
         self.restart_button_rect = self.restart_button_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150))
 
         self.main_menu_button_text = self.font_small.render("Main Menu", True, WHITE)
         self.main_menu_button_rect = self.main_menu_button_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
 
-        # --- 배경 이미지 로드 및 크기 조절 ---
-        # assets/images/result.png 파일 경로
+        # --- 背景画像のロードとサイズ調整 ---
+        # assets/images/result_test.png ファイルのパス
         background_image_path = os.path.join('assets', 'images', 'result_test.png')
         try:
-            # 이미지 로드
+            # 画像をロード
             original_background_image = pygame.image.load(background_image_path).convert() 
             
-            # 화면 크기에 맞춰 이미지 크기 조절
+            # 画面サイズに合わせて画像のサイズを調整
             self.background_image = pygame.transform.scale(original_background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
             print(f"結果画面背景画像 '{background_image_path}'を {SCREEN_WIDTH}x{SCREEN_HEIGHT}に調整してロードしました。")
         except FileNotFoundError:
@@ -65,38 +65,38 @@ class ResultScene: # BaseScene을 상속받지 않습니다.
             self.background_image = None
         # ------------------------------------
 
-    # 씬 전환 시 외부에서 데이터를 받아올 메서드 (GameManager가 호출)
+    # シーン遷移時に外部からデータを受け取るメソッド (GameManagerが呼び出す)
     def set_results(self, final_score, judgment_counts):
         self.final_score = final_score
         self.judgment_counts = judgment_counts
 
-    # GameManager가 호출할 이벤트 처리 메서드
+    # GameManagerが呼び出すイベント処理メソッド
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # 재시작 버튼 클릭 처리
+            # リスタートボタンクリック処理
             if self.restart_button_rect.collidepoint(event.pos):
-                self.game_manager.change_scene(GAME_STATE_PLAYING) # GameManager를 통해 게임 씬으로 전환
-            # 메인 메뉴 버튼 클릭 처리
+                self.game_manager.change_scene(GAME_STATE_PLAYING) # GameManagerを介してゲームシーンに遷移
+            # メインメニューボタンクリック処理
             elif self.main_menu_button_rect.collidepoint(event.pos):
-                self.game_manager.change_scene(GAME_STATE_START_SCREEN) # GameManager를 통해 시작 씬으로 전환
+                self.game_manager.change_scene(GAME_STATE_START_SCREEN) # GameManagerを介してスタートシーンに遷移
 
-    # GameManager가 호출할 업데이트 로직 메서드
+    # GameManagerが呼び出す更新ロジックメソッド
     def update(self):
-        # 결과 화면에서는 특별히 업데이트할 게임 로직이 없습니다.
+        # 結果画面では特に更新するゲームロジックはありません。
         pass
 
-    # GameManager가 호출할 그리기 로직 메서드
+    # GameManagerが呼び出す描画ロジックメソッド
     def draw(self, screen):
-        # --- 배경 이미지 그리기 (가장 먼저 그려야 다른 요소가 그 위에 보임) ---
+        # --- 背景画像の描画 (他の要素より先に描画することで、その上に表示されます) ---
         if self.background_image:
             screen.blit(self.background_image, (0, 0)) 
         else:
-            screen.fill(BLACK) # 이미지가 없으면 기본 검은색 배경으로 채우기
+            screen.fill(BLACK) # 画像がない場合、デフォルトの黒い背景で塗りつぶし
         # -----------------------------------------------------------------
 
-        # 텍스트 색상 및 위치 조정 (배경 이미지에 맞춰 가독성 좋게)
-        # 예시 이미지의 배경이 밝으므로, 텍스트 색상을 검은색으로 변경하는 것을 고려할 수 있습니다.
-        TEXT_COLOR = BLACK # 배경이 밝으니 검정색 텍스트가 더 잘 보일 수 있습니다.
+        # テキストの色と位置を調整 (背景画像に合わせて読みやすく)
+        # 例示画像の背景が明るいため、テキストの色を黒に変更することを検討できます。
+        TEXT_COLOR = BLACK # 背景が明るいので黒いテキストの方がよく見えます。
 
         result_title = self.font_large.render("Game Over!", True, TEXT_COLOR)
         screen.blit(result_title, result_title.get_rect(center=(SCREEN_WIDTH // 2, 100)))
@@ -105,8 +105,8 @@ class ResultScene: # BaseScene을 상속받지 않습니다.
         screen.blit(final_score_text, final_score_text.get_rect(center=(SCREEN_WIDTH // 2, 200)))
 
         y_offset = 280
-        # Perfect, Miss 순서로 표시 (예시 이미지에 '斬った悪霊', '逃げられた悪霊'이 있으니, 그에 맞춰 문구 조정)
-        # '斬った悪霊' (벤 악령)을 Perfect에, '逃げられた悪霊' (놓친 악령)을 Miss에 대응시켜 봅시다.
+        # Perfect, Miss の順に表示 (例示画像に「斬った悪霊」「逃げられた悪霊」があるので、それに合わせて文言を調整)
+        # 「斬った悪霊」をPerfectに、「逃げられた悪霊」をMissに対応させてみましょう。
         display_judgments = {
             'Perfect': '斬った悪霊',
             'Miss': '逃げられた悪霊'
@@ -118,7 +118,7 @@ class ResultScene: # BaseScene을 상속받지 않습니다.
             screen.blit(count_text, count_text.get_rect(center=(SCREEN_WIDTH // 2, y_offset)))
             y_offset += 40
         
-        # 참고 이미지에 '命中率' (명중률)이 있으므로, 이것도 계산하여 표시할 수 있습니다.
+        # 参考画像に「命中率」があるので、これも計算して表示できます。
         total_notes = self.judgment_counts.get('Perfect', 0) + self.judgment_counts.get('Miss', 0)
         accuracy = 0.0
         if total_notes > 0:
@@ -128,6 +128,6 @@ class ResultScene: # BaseScene을 상속받지 않습니다.
         screen.blit(accuracy_text, accuracy_text.get_rect(center=(SCREEN_WIDTH // 2, y_offset + 20)))
 
 
-        # 버튼 텍스트는 배경 이미지와 독립적으로 WHITE로 유지하거나, 이미지에 맞춰 변경
+        # ボタンのテキストは背景画像とは独立してWHITEを維持するか、画像に合わせて変更してください。
         screen.blit(self.restart_button_text, self.restart_button_rect)
         screen.blit(self.main_menu_button_text, self.main_menu_button_rect)
