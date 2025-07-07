@@ -1,5 +1,5 @@
 # note.py
-import pygame  # Pygameの機能 (pygame.Rect, pygame.draw.rect) を使用するため、importが必要です。
+import pygame 
 
 NOTE_WIDTH = 50
 NOTE_HEIGHT = 50
