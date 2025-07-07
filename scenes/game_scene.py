@@ -128,4 +128,5 @@ def run_game_scene(screen, clock, base_dir):
         # ノーツ削除: 判定済 or 画面外
         notes = [n for n in notes if not (n.judged or n.is_offscreen())]
 
+    # final_score, perfect_nums, miss_numsをreturnできるように！
     return True
