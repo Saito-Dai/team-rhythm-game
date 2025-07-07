@@ -45,7 +45,7 @@ def load_image(name, base_dir):
 def run_game_scene(screen, clock, base_dir):
     """
     プレイ中のシーンを実行する。
-    戻り値: False(終了) / True(シーン完了)
+    戻り値: (final_score, perfect_nums, miss_nums) 
     """
     # --- 初期化 ---
     samurai_img = load_image("samurai.png", base_dir)
@@ -66,6 +66,8 @@ def run_game_scene(screen, clock, base_dir):
     running = True
     score = 0
     combo = 0
+    perfect_nums = 0
+    miss_nums = 0
 
     while running:
         current_time = pygame.time.get_ticks() - start_ticks
@@ -81,7 +83,8 @@ def run_game_scene(screen, clock, base_dir):
         # イベント処理
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
-                return False
+                running = False
+
             if e.type == pygame.KEYDOWN:
                 # キー→レーン対応
                 key2lane = {
@@ -103,8 +106,10 @@ def run_game_scene(screen, clock, base_dir):
                             n.judged = True
                             score += 100
                             combo += 1
+                            perfect_nums += 1
                         else:
                             combo = 0
+                            miss_nums += 1
             # ESCキーでシーン終了
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
@@ -126,7 +131,10 @@ def run_game_scene(screen, clock, base_dir):
         clock.tick(60)
 
         # ノーツ削除: 判定済 or 画面外
+        for n in notes:
+            if n.is_offscreen() and not n.judged:
+                miss_nums += 1
         notes = [n for n in notes if not (n.judged or n.is_offscreen())]
 
-    # final_score, perfect_nums, miss_numsをreturnできるように！
-    return True
+    # ループ終了後、常にスコアタプルを返す
+    return score, perfect_nums, miss_nums
