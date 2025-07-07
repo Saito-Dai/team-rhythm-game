@@ -2,8 +2,7 @@ import pygame
 
 def show_start_screen(screen):
     background = pygame.image.load("assets/title.png")
-    # 背景画像に描かれているボタンの範囲を定義（ここを押すとスタート）
-    button_rect = pygame.Rect(300, 400, 200, 60)  # x, y, width, height
+    button_rect = pygame.Rect(511, 333, 451, 93)  # x, y, width, height
 
     running = True
     while running:
