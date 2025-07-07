@@ -1,5 +1,5 @@
 import pygame
-import os
+from asset_loader import samurai_img, background_img
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -36,21 +36,14 @@ def draw_lanes(screen):
     )
 
 
-def load_image(name, base_dir):
-    """プロジェクトルートの assets/image から画像を読み込む"""
-    path = os.path.join(base_dir, "assets", "image", name)
-    return pygame.image.load(path).convert_alpha()
-
-
-def run_game_scene(screen, clock, base_dir):
+def run_game_scene(screen, clock):
     """
     プレイ中のシーンを実行する。
-    戻り値: (final_score, perfect_nums, miss_nums) 
+    戻り値: (final_score, perfect_nums, miss_nums)
     """
     # --- 初期化 ---
-    samurai_img = load_image("samurai.png", base_dir)
-    samurai_img = pygame.transform.smoothscale(samurai_img, (200, 300))
-    img_w, img_h = samurai_img.get_size()
+    # サムライ画像位置設定
+    _, img_h = samurai_img.get_size()
     margin_x, margin_y = 50, 30
     pos_x = margin_x
     pos_y = SCREEN_HEIGHT - img_h - margin_y
@@ -110,9 +103,8 @@ def run_game_scene(screen, clock, base_dir):
                         else:
                             combo = 0
                             miss_nums += 1
-            # ESCキーでシーン終了
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
+        # ESCキーでシーン終了
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             running = False
 
         # 更新
@@ -120,7 +112,7 @@ def run_game_scene(screen, clock, base_dir):
             n.update()
 
         # 描画
-        screen.fill((0, 0, 0))
+        screen.blit(background_img, (0, 0))
         screen.blit(samurai_img, (pos_x, pos_y))
         draw_lanes(screen)
         for n in notes:
@@ -136,5 +128,4 @@ def run_game_scene(screen, clock, base_dir):
                 miss_nums += 1
         notes = [n for n in notes if not (n.judged or n.is_offscreen())]
 
-    # ループ終了後、常にスコアタプルを返す
     return score, perfect_nums, miss_nums
