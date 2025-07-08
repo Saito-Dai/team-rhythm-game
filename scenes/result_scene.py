@@ -4,6 +4,7 @@
 # scenes/result_scene.py
 import pygame
 import os
+from asset_loader import result_test_img
 
 # --- このファイル内で直接定数を定義します ---
 # 画面設定 (main.pyのSCREEN_WIDTH, SCREEN_HEIGHTと一致する必要があります)
@@ -28,16 +29,7 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
     font_small = pygame.font.Font(None, 50)
 
     # 画像のロードとサイズ調整
-    background_image = None
-    background_image_path = os.path.join('assets', 'images', 'result_test.png')
-    try:
-        original_background_image = pygame.image.load(background_image_path).convert()
-        background_image = pygame.transform.scale(original_background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        print(f"背景画像 '{background_image_path}' を {SCREEN_WIDTH}x{SCREEN_HEIGHT} にスケーリングしてロードしました。")
-    except FileNotFoundError:
-        print(f"エラー: 背景画像 '{background_image_path}' が見つかりません。")
-    except pygame.error as e:
-        print(f"エラー: 背景画像のロードまたはスケーリング中にエラーが発生しました: {e}")
+    background_image = result_test_img
 
     running = True
     while running:

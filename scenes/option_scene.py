@@ -162,3 +162,11 @@ class SettingsScene:
 
             pygame.display.flip()
             clock.tick(60)
+
+def run_option_scene(screen, clock):
+    """
+    main.pyから呼び出すための関数型ラッパー。
+    SettingsSceneを作ってその.run()を呼ぶだけ。
+    """
+    scene = SettingsScene(screen)
+    scene.run()
