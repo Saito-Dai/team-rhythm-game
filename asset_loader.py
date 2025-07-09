@@ -17,6 +17,8 @@ def load_image(name, size=None):
         raise
     return pygame.transform.smoothscale(img, size) if size else img
 
-samurai_img = load_image("Samurai.png",(200, 300)) 
-background_img = load_image("Background.png",(1000, 600)) 
+samurai_img = load_image("samurai.png",(200, 300)) 
+samurai_slash_img = load_image("samurai_slash.png",(200,300))
+blade_wave_img = load_image("blade_wave.png")
+background_img = load_image("background.png",(1000, 600)) 
 result_test_img = load_image("result_test.png")

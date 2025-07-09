@@ -1,5 +1,5 @@
 import pygame
-from asset_loader import samurai_img, background_img
+from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,background_img
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -53,15 +53,21 @@ def run_game_scene(screen, clock):
         {"time": 1000, "lane": 0},
         # 追加譜面はここに足す
     ]
-    notes = []  # 生成済みノーツ
+    notes = []           # 生成済みノーツ
     start_ticks = pygame.time.get_ticks()
+    font = pygame.font.Font(None, 48)
+    feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
 
     running = True
     score = 0
     combo = 0
     perfect_nums = 0
     miss_nums = 0
-
+    slash_timer = 0        #斬撃エフェクト表示中のタイマー
+    slash_duration = 200   #斬撃エフェクト表示時間
+    current_lane = None
+    key2lane = {pygame.K_a:0, pygame.K_s:1, pygame.K_d:2, pygame.K_f:3}
+    
     while running:
         current_time = pygame.time.get_ticks() - start_ticks
 
@@ -78,31 +84,40 @@ def run_game_scene(screen, clock):
             if e.type == pygame.QUIT:
                 running = False
 
-            if e.type == pygame.KEYDOWN:
-                # キー→レーン対応
-                key2lane = {
-                    pygame.K_a: 0,
-                    pygame.K_s: 1,
-                    pygame.K_d: 2,
-                    pygame.K_f: 3,
-                }
-                if e.key in key2lane:
-                    lane = key2lane[e.key]
-                    # 同レーンかつ未判定のノーツ抽出
-                    candidates = [n for n in notes if not n.judged and n.rect.y // (LANE_HEIGHT + LANE_GAP) == lane]
-                    if candidates:
-                        # 最も近いタイミングのノーツを判定
-                        n = min(candidates, key=lambda n: abs(current_time - n.target_hit_time))
-                        delta = abs(current_time - n.target_hit_time)
-                        # 判定幅 ±150ms
-                        if delta <= 150:
-                            n.judged = True
-                            score += 100
-                            combo += 1
-                            perfect_nums += 1
-                        else:
-                            combo = 0
-                            miss_nums += 1
+            elif e.type == pygame.KEYDOWN and e.key in key2lane:
+                lane = key2lane[e.key]
+                current_lane = lane
+                slash_timer = current_time
+                # 同レーンかつ未判定のノーツ抽出
+                candidates = [n for n in notes if not n.judged and n.rect.y // (LANE_HEIGHT + LANE_GAP) == lane]
+                if candidates:
+                    # 最も近いタイミングのノーツを判定
+                    n = min(candidates, key=lambda n: abs(current_time - n.target_hit_time))
+                    delta = abs(current_time - n.target_hit_time)
+                    # 判定幅 150ms以内→"良",150ms超~200ms以内→"可"を表示
+                    if delta <= 150:
+                        n.judged = True
+                        score += 100
+                        combo += 1
+                        perfect_nums += 1
+                        feedbacks.append({
+                            'text':'良',
+                            'pos':(n.rect.centerx, n.rect.y - 20),
+                            'time':current_time
+                        })
+                    elif delta <= 200:
+                        n.judged = True
+                        combo += 1
+                        miss_nums += 1
+                        feedbacks.append({
+                            'text':'可',
+                            'pos':(n.rect.centerx, n.rect.y - 20),
+                            'time':current_time
+                        })
+                    else:
+                        combo = 0
+                        miss_nums += 1
+                            
         # ESCキーでシーン終了
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             running = False
@@ -110,13 +125,53 @@ def run_game_scene(screen, clock):
         # 更新
         for n in notes:
             n.update()
+            
+        screen.blit(background_img, (0, 0))    
+        
+        # 侍の描画
+        if current_time - slash_timer < slash_duration:
+            img = samurai_slash_img
+        else:
+            img = samurai_img
+        screen.blit(img, (pos_x, pos_y))
 
-        # 描画
-        screen.blit(background_img, (0, 0))
-        screen.blit(samurai_img, (pos_x, pos_y))
+        #レーン・ノーツの描画
         draw_lanes(screen)
         for n in notes:
             n.draw(screen)
+            
+        # 斬撃エフェクトを表示
+        if current_time - slash_timer < slash_duration:
+            #レーンの判定ラインX座標
+            fx = HIT_LINE_X
+            #Y座標は押されたレーンの中央当たりか固定の高さ
+            fy = LANE_Y[current_lane] + LANE_HEIGHT // 2
+            screen.blit(blade_wave_img,
+                        (fx - blade_wave_img.get_width(),
+                         fy - blade_wave_img.get_height() // 2))
+        
+        # 判定フィードバックを短時間ノーツ上に表示
+        for fb in feedbacks[:]:
+            if current_time - fb['time'] < 500:
+                surf = font.render(fb['text'], True, WHITE)
+                screen.blit(surf, fb['pos'])
+            else:
+                feedbacks.remove(fb)
+                
+        # スコア表示(画面右上)
+        score_surf = font.render(f"得点：{score}", True, WHITE)
+        screen.blit(
+            score_surf,
+            (SCREEN_WIDTH - score_surf.get_width() - 20, 20)
+        )
+        
+        # コンボ表示(侍頭上)
+        if combo > 1:
+            combo_surf = font.render(f"{combo}連", True, WHITE)
+            screen.blit(
+                combo_surf,
+                (pos_x, pos_y - combo_surf.get_height() - 10)
+            )
 
         # 画面更新
         pygame.display.flip()
