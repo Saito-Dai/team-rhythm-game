@@ -1,5 +1,5 @@
 import pygame
-from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,background_img
+from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,miss_smoke_img,background_img
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -54,6 +54,7 @@ def run_game_scene(screen, clock):
         # 追加譜面はここに足す
     ]
     notes = []           # 生成済みノーツ
+    smoke_effects = []
     start_ticks = pygame.time.get_ticks()
     font = pygame.font.Font(None, 48)
     feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
@@ -63,9 +64,10 @@ def run_game_scene(screen, clock):
     combo = 0
     perfect_nums = 0
     miss_nums = 0
+    miss_effect_duration = 300 #miss時エフェクト表示時間
     slash_timer = 0        #斬撃エフェクト表示中のタイマー
     slash_duration = 200   #斬撃エフェクト表示時間
-    current_lane = None
+    current_lane = None    #斬撃エフェクトを出すレーン
     key2lane = {pygame.K_a:0, pygame.K_s:1, pygame.K_d:2, pygame.K_f:3}
     
     while running:
@@ -101,20 +103,27 @@ def run_game_scene(screen, clock):
                         combo += 1
                         perfect_nums += 1
                         feedbacks.append({
-                            'text':'良',
-                            'pos':(n.rect.centerx, n.rect.y - 20),
-                            'time':current_time
+                            'text' : '良',
+                            'pos'  : (n.rect.centerx, n.rect.y - 20),
+                            'time' : current_time
                         })
                     elif delta <= 200:
                         n.judged = True
                         combo += 1
                         miss_nums += 1
                         feedbacks.append({
-                            'text':'可',
-                            'pos':(n.rect.centerx, n.rect.y - 20),
-                            'time':current_time
+                            'text' : '可',
+                            'pos'  : (n.rect.centerx, n.rect.y - 20),
+                            'time' : current_time
                         })
                     else:
+                        n.judged = True
+                        n.miss_time = current_time
+                        smoke_effects.append({
+                            'pos'  : (n.rect.x, n.rect.y),
+                            'time' : current_time,
+                            'note' : n
+                        })
                         combo = 0
                         miss_nums += 1
                             
@@ -138,8 +147,19 @@ def run_game_scene(screen, clock):
         #レーン・ノーツの描画
         draw_lanes(screen)
         for n in notes:
-            n.draw(screen)
-            
+            if not n.judged:
+                n.draw(screen)
+
+        #miss時の煙エフェクト
+        for se in smoke_effects[:]:
+            elapsed = current_time - se['time']
+            if elapsed <= miss_effect_duration:
+                screen.blit(miss_smoke_img, se['pos'])
+            else:
+                if se['note'] in notes:
+                    notes.remove(se['note'])
+                smoke_effects.remove(se)
+                            
         # 斬撃エフェクトを表示
         if current_time - slash_timer < slash_duration:
             #レーンの判定ラインX座標
@@ -178,9 +198,19 @@ def run_game_scene(screen, clock):
         clock.tick(60)
 
         # ノーツ削除: 判定済 or 画面外
-        for n in notes:
+        for n in notes[:]:
             if n.is_offscreen() and not n.judged:
+                n.judged = True
+                n.miss_time = current_time
+                smoke_effects.append({
+                    'pos'  : (n.rect.x, n.rect.y),
+                    'time' : current_time,
+                    'note' : n
+                })
                 miss_nums += 1
-        notes = [n for n in notes if not (n.judged or n.is_offscreen())]
+        notes = [
+            n for n in notes
+            if (not n.judged)
+            or (hasattr (n, 'miss_time') and current_time - n.miss_time <= miss_effect_duration)]
 
     return score, perfect_nums, miss_nums
