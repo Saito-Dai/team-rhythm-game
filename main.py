@@ -33,17 +33,28 @@
     +) 斉藤君へ :
         game_sceneの実装が一番難しいと思いますのでもし一人で実装することが難しいもしくはこの機能は実装してほしい(音楽データの保存と譜面作成など)
         ことがあったら教えてください！！
+
+250710 ジュンソ : 
+    asset_loader.pyで、miss_effectがmiss_smokeとして宣言されていたためエラーが出ていたので、修正しました。
+    また、うたこさんが作成してくれたスタート画面のコードをstart_scene.pyに移し、main.pyから正常に呼び出して操作できることを確認しました。
+    start_sceneでは、start / quit / optionボタンを追加し、option_sceneにもquitボタンを追加しました。
+    +) 斉藤君へ :
+        game_sceneを実装しようとしたところ、レーンの宣言周りでバグがあって、今日はテストできませんでした。
+        実装が完了したら教えてください！
+
+    +) うたこさんへお願い :
+        譜面データの作成をお願いしたいです!
+        作成方法は、このリポジトリのmain.py、game_scene.pyをGPTに入力し、対話しながら進めてください！
+
+        もし、開発のほうもやりたいと思ったら、option_sceneのスライダーを実際に動かして、ノーツの速さや音楽の音量を調整できるようにする部分もぜひ挑戦してみてください！
+
+        譜面をやるか開発をやるか決まったら教えてください。残りのほうを自分が担当します！
         
 '''
 
 import pygame
 import sys
 import os
-from scenes.start_scene import run_start_scene
-from scenes.option_scene import run_option_scene
-from scenes.game_scene import run_game_scene
-from scenes.result_scene import run_result_scene
-
 
 pygame.init()
 
@@ -55,16 +66,13 @@ pygame.display.set_caption("RhythmGame")
 clock = pygame.time.Clock()
 FPS = 60
 
-def main():
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        
-        pygame.display.flip()
-        clock.tick(FPS)
+from scenes.start_scene import run_start_scene
+from scenes.option_scene import run_option_scene
+from scenes.game_scene import run_game_scene
+from scenes.result_scene import run_result_scene
 
+
+def main():
     while True:
         choice = run_start_scene(screen, clock)
 
@@ -89,8 +97,6 @@ def main():
         elif choice == "quit":
             break
 
-
-        
     pygame.quit()
     sys.exit()
     

@@ -3,8 +3,15 @@
 '''
 # scenes/result_scene.py
 import pygame
+pygame.init()
+pygame.display.set_mode((100, 100))  # 가짜 display 열기
+
+import sys
 import os
-from asset_loader import result_test_img
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from asset_loader import background_img
+
 
 # --- このファイル内で直接定数を定義します ---
 # 画面設定 (main.pyのSCREEN_WIDTH, SCREEN_HEIGHTと一致する必要があります)
@@ -29,7 +36,7 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
     font_small = pygame.font.Font(None, 50)
 
     # 画像のロードとサイズ調整
-    background_image = result_test_img
+    background_image = background_img
 
     running = True
     while running:

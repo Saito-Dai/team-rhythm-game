@@ -1,6 +1,7 @@
 import pygame
 import json
 import os
+from asset_loader import background_img
 
 # 機能：ゲームの設定画面を表示し、ノーツ速度とBGM音量の調整を行う
 # 主なクラス：
@@ -27,6 +28,7 @@ class Slider:
     - value: 現在のスライダー値
     """
     def __init__(self, x, y, width, height, min_val, max_val, current):
+        
         self.rect = pygame.Rect(x, y, width, height)
         self.min, self.max = min_val, max_val
         self.value = current
@@ -76,6 +78,7 @@ class SettingsScene:
             SLIDER_X, NOTE_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
             0.5, 3.0, self.config.get('note_speed', 1.0)
         )
+
         # BGM音量用スライダー（0〜100%）
         self.bgm_slider = Slider(
             SLIDER_X, BGM_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
@@ -83,6 +86,9 @@ class SettingsScene:
         )
         # 選択中のスライダー：0=ノーツ, 1=BGM
         self.selected = 0
+        self.background = background_img
+        #Quitボタンの領域
+        self.quit_button_rect = pygame.Rect((WIDTH - 200)//2, HEIGHT - 100, 200, 50)
 
     def load_config(self):
         """
@@ -118,6 +124,9 @@ class SettingsScene:
                 # 閉じるボタンで終了
                 if e.type == pygame.QUIT:
                     running = False
+                elif e.type == pygame.MOUSEBUTTONDOWN:
+                    if self.quit_button_rect.collidepoint(e.pos):
+                        running = False
 
                 # キー入力処理
                 elif e.type == pygame.KEYDOWN:
@@ -143,8 +152,18 @@ class SettingsScene:
                         running = False
 
             # ── 描画 ──
-            self.screen.fill((30, 30, 30))
+            # 背景を描画
+            self.screen.blit(self.background, (0, 0))
+
+            # フォント
             font = pygame.font.SysFont(None, 36)
+
+            # Quitボタン
+            pygame.draw.rect(self.screen, (100, 100, 100), self.quit_button_rect)
+            quit_font = pygame.font.SysFont(None, 32)
+            quit_text = quit_font.render("QUIT", True, (255, 255, 255))
+            text_rect = quit_text.get_rect(center=self.quit_button_rect.center)
+            self.screen.blit(quit_text, text_rect)
 
             # ラベル表示：現在値をテキスト化
             note_txt = font.render(
@@ -159,6 +178,7 @@ class SettingsScene:
             # スライダー本体を描画
             self.note_slider.draw(self.screen)
             self.bgm_slider.draw(self.screen)
+
 
             pygame.display.flip()
             clock.tick(60)
