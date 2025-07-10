@@ -23,6 +23,7 @@ def load_image(name, size=None):
 
 samurai_img = load_image("samurai.png",(200, 300)) 
 samurai_slash_img = load_image("samurai_slash.png",(200,300))
+samurai_miss_img = load_image("samurai_miss.png",(200,300))
 blade_wave_img = load_image("blade_wave.png")
 miss_smoke_img = load_image("miss_effect.png")
 background_img = load_image("background.png",(1000, 600)) 

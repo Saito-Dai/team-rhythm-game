@@ -1,5 +1,5 @@
 import pygame
-from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,miss_smoke_img,background_img,slash_se
+from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,samurai_miss_img,miss_smoke_img,background_img,slash_se
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -64,10 +64,12 @@ def run_game_scene(screen, clock):
     combo = 0
     perfect_nums = 0
     miss_nums = 0
-    miss_effect_duration = 300 #miss時エフェクト表示時間
-    slash_timer = 0        #斬撃エフェクト表示中のタイマー
-    slash_duration = 200   #斬撃エフェクト表示時間
-    current_lane = None    #斬撃エフェクトを出すレーン
+    miss_timer = -9999
+    miss_samurai_duration = 300  #miss時侍画像切り替え時間
+    miss_effect_duration = 300   #miss時エフェクト表示時間
+    slash_timer = 0              #斬撃エフェクト表示中のタイマー
+    slash_duration = 200         #斬撃エフェクト表示時間
+    current_lane = None          #斬撃エフェクトを出すレーン
     key2lane = {pygame.K_a:0, pygame.K_s:1, pygame.K_d:2, pygame.K_f:3}
     
     while running:
@@ -130,6 +132,7 @@ def run_game_scene(screen, clock):
                         })
                         combo = 0
                         miss_nums += 1
+                        miss_timer = current_time
                             
         # ESCキーでシーン終了
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
@@ -142,7 +145,9 @@ def run_game_scene(screen, clock):
         screen.blit(background_img, (0, 0))    
         
         # 侍の描画
-        if current_lane is not None and current_time - slash_timer < slash_duration:
+        if current_time - miss_timer < miss_samurai_duration:
+            img = samurai_miss_img
+        elif current_lane is not None and current_time - slash_timer < slash_duration:
             img = samurai_slash_img
         else:
             img = samurai_img
@@ -212,6 +217,8 @@ def run_game_scene(screen, clock):
                     'note' : n
                 })
                 miss_nums += 1
+                miss_timer = current_time
+                
         notes = [
             n for n in notes
             if (not n.judged)
