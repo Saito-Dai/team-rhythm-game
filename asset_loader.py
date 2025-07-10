@@ -43,7 +43,7 @@ def load_sound(name: str, volume: float = 1.0) -> pygame.mixer.Sound:
     sound.set_volume(volume)
     return sound
 
-slash_se = load_sound("slash_se.wav")
+slash_se = load_sound("slash_se.mp3")
 
 def play_bgm(file: str, loops: int = -1, volume: float = 0.5):
     """
