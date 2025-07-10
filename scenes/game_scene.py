@@ -1,5 +1,5 @@
 import pygame
-from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,miss_smoke_img,background_img
+from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,miss_smoke_img,background_img,slash_se
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -78,7 +78,9 @@ def run_game_scene(screen, clock):
             if current_time >= nd["time"]:
                 x0 = SCREEN_WIDTH
                 y0 = LANE_Y[nd["lane"]] + (LANE_HEIGHT - NOTE_HEIGHT) // 2
-                notes.append(Note(x0, y0, color=WHITE, target_hit_time=nd["time"]))
+                n = Note(x0, y0, color=WHITE, target_hit_time=nd["time"])
+                n.lane = nd["lane"]
+                notes.append(n)
                 notes_data.remove(nd)
 
         # イベント処理
@@ -91,7 +93,7 @@ def run_game_scene(screen, clock):
                 current_lane = lane
                 slash_timer = current_time
                 # 同レーンかつ未判定のノーツ抽出
-                candidates = [n for n in notes if not n.judged and n.rect.y // (LANE_HEIGHT + LANE_GAP) == lane]
+                candidates = [n for n in notes if not n.judged and n.lane == lane]
                 if candidates:
                     # 最も近いタイミングのノーツを判定
                     n = min(candidates, key=lambda n: abs(current_time - n.target_hit_time))
@@ -102,6 +104,7 @@ def run_game_scene(screen, clock):
                         score += 100
                         combo += 1
                         perfect_nums += 1
+                        slash_se.play()
                         feedbacks.append({
                             'text' : '良',
                             'pos'  : (n.rect.centerx, n.rect.y - 20),
@@ -111,6 +114,7 @@ def run_game_scene(screen, clock):
                         n.judged = True
                         combo += 1
                         miss_nums += 1
+                        slash_se.play()
                         feedbacks.append({
                             'text' : '可',
                             'pos'  : (n.rect.centerx, n.rect.y - 20),
@@ -138,7 +142,7 @@ def run_game_scene(screen, clock):
         screen.blit(background_img, (0, 0))    
         
         # 侍の描画
-        if current_time - slash_timer < slash_duration:
+        if current_lane is not None and current_time - slash_timer < slash_duration:
             img = samurai_slash_img
         else:
             img = samurai_img
@@ -161,7 +165,7 @@ def run_game_scene(screen, clock):
                 smoke_effects.remove(se)
                             
         # 斬撃エフェクトを表示
-        if current_time - slash_timer < slash_duration:
+        if current_lane is not None and current_time - slash_timer < slash_duration:
             #レーンの判定ラインX座標
             fx = HIT_LINE_X
             #Y座標は押されたレーンの中央当たりか固定の高さ

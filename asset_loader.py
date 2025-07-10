@@ -43,6 +43,8 @@ def load_sound(name: str, volume: float = 1.0) -> pygame.mixer.Sound:
     sound.set_volume(volume)
     return sound
 
+slash_se = load_sound("slash_se.wav")
+
 def play_bgm(file: str, loops: int = -1, volume: float = 0.5):
     """
     BGMを再生する
@@ -61,6 +63,3 @@ def play_bgm(file: str, loops: int = -1, volume: float = 0.5):
     
 def stop_bgm():
     pygame.mixer.music.stop()
-
-def play_se(sound: pygame.mixer.Sound):
-    sound.play()
