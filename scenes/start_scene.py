@@ -1,54 +1,54 @@
 import pygame
-from asset_loader import background_img
+from asset_loader import background_img, YujiBoku_font
 
-def run_start_scene(screen, clock): # main.py から clock 引数が渡されるため、追加します。
+def run_start_scene(screen, clock):
     """
     スタートシーンを実行します。
     ユーザーの選択に応じて "start", "option", "quit" のいずれかを返します。
     """
     background = background_img
     
-    # "ゲーム開始" ボタンの矩形領域を定義します。
-    start_button_rect = pygame.Rect(511, 333, 451, 93) 
-    
-    # "オプション" ボタンの矩形領域を定義します。
-    option_button_rect = pygame.Rect(511, 430, 451, 93) 
+    # ボタンの矩形領域を定義（Y座標を30上にシフト）
+    start_button_rect = pygame.Rect(511, 303, 451, 93) 
+    option_button_rect = pygame.Rect(511, 400, 451, 93) 
+    quit_button_rect = pygame.Rect(511, 497, 451, 93)
 
-    # "QUIT" ボタンの矩形領域を定義します。
-    quit_button_rect = pygame.Rect(511, 527, 451, 93)
-    
+    font = YujiBoku_font
+
     running = True
     while running:
         # 背景を描画
         screen.blit(background, (0, 0))
         
-        # デバッグ用にボタンの領域を四角で表示したい場合、コメントを外してください。
-        pygame.draw.rect(screen, (255,0,0), start_button_rect, 2) 
-        pygame.draw.rect(screen, (0,255,0), option_button_rect, 2) 
-        pygame.draw.rect(screen, (0,0,255), quit_button_rect, 2)
+        # --- ボタンテキストを描画 ---
+        start_text = font.render("START", True, (0, 0, 0))
+        option_text = font.render("OPTION", True, (0, 0, 0))
+        quit_text = font.render("QUIT", True, (0, 0, 0))
 
-        
+        # テキストをボタンの中央に配置
+        start_text_rect = start_text.get_rect(center=start_button_rect.center)
+        option_text_rect = option_text.get_rect(center=option_button_rect.center)
+        quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
+
+        screen.blit(start_text, start_text_rect)
+        screen.blit(option_text, option_text_rect)
+        screen.blit(quit_text, quit_text_rect)
+
         # 画面を更新
         pygame.display.update()
 
         # イベント処理ループ
         for event in pygame.event.get():
-            # ウィンドウの閉じるボタンが押された場合
             if event.type == pygame.QUIT:
                 running = False
-                return "quit" # main.py に "quit" を返して終了を指示
-
-            # マウスボタンが押された場合
+                return "quit"
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # "ゲーム開始" ボタンがクリックされたかチェック
                 if start_button_rect.collidepoint(event.pos):
-                    return "start" # main.py に "start" (ゲームシーンへ) を指示
-                # "オプション" ボタンがクリックされたかチェック
+                    return "start"
                 elif option_button_rect.collidepoint(event.pos):
-                    return "option" # main.py に "option" (オプションシーンへ) を指示
-                # "QUIT" ボタンがクリックされたかチェック
+                    return "option"
                 elif quit_button_rect.collidepoint(event.pos):
                     return "quit"
-        
-        # ゲームのフレームレートを制限 (main.py の FPS と一致させる)
+
+        # FPS制御
         clock.tick(60)

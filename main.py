@@ -49,7 +49,36 @@
         もし、開発のほうもやりたいと思ったら、option_sceneのスライダーを実際に動かして、ノーツの速さや音楽の音量を調整できるようにする部分もぜひ挑戦してみてください！
 
         譜面をやるか開発をやるか決まったら教えてください。残りのほうを自分が担当します！
-        
+
+250712 ジュンソ :
+    以下の修正を行いました。
+    1. フォントを追加
+    2. result_sceneでスコアなどの表示を新しいフォントで統一
+    3. option_sceneのスライダーをマウスでドラッグ操作できるように実装
+    4. start_sceneでも選択したフォントを読み込んで表示できるように対応
+
+    また、昨日game_sceneが起動しなかった原因として、
+        164行目の
+            if current_time - slash_timer < slash_duration:
+        という条件が、
+            current_laneがNoneのままでも実行され、
+            TypeError: list indices must be integers or slices, not NoneType
+        が発生していました。
+
+    こちらを
+        if current_lane is not None and current_time - slash_timer < slash_duration:
+        に修正することで解消しました。
+
+    +) うたこさんへ :
+        UIプロンプトの「1番スライドの写真」を高解像度で.png化し、
+        assets/imagesにTitle_imageという名前で保存しておいてください！
+        どの写真かはこのあとチャットで指定します。
+        さらに、7ページにある巻物風の写真も別ファイルで用意してくれると助かります。
+        → start_sceneの「start」「option」「exit」ボタン周りの背景に使う予定です。
+
+    +) 斉藤君へ :
+        上記game_scene.pyの164行目の修正を一度チェックお願いします。
+
 '''
 
 import pygame
