@@ -33,7 +33,7 @@ def load_sound(name: str, volume: float = 1.0) -> pygame.mixer.Sound:
     """
     効果音を読み込み、指定ボリュームで返す
     :param name: ファイル名
-    ;param volume: 0.0 ~ 1.0
+    :param volume: 0.0 ~ 1.0
     """
     path = os.path.join(SOUND_DIR, name)
     try:
@@ -46,11 +46,11 @@ def load_sound(name: str, volume: float = 1.0) -> pygame.mixer.Sound:
 
 slash_se = load_sound("slash_se.mp3")
 
-def play_bgm(file: str, loops: int = -1, volume: float = 0.5):
+def play_bgm(file: str, loops: int = 0, volume: float = 0.5):
     """
     BGMを再生する
     :param file: ファイル名
-    :param loops: ループ回数(-1で無限)
+    :param loops: ループ回数(0 => 1回再生)
     :param volume: 0.0 ~ 1.0
     """
     path = os.path.join(SOUND_DIR, file)
@@ -61,6 +61,6 @@ def play_bgm(file: str, loops: int = -1, volume: float = 0.5):
         raise e
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(loops)
-    
+
 def stop_bgm():
     pygame.mixer.music.stop()

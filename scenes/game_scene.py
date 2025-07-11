@@ -1,5 +1,7 @@
 import pygame
-from asset_loader import samurai_img, samurai_slash_img,blade_wave_img,samurai_miss_img,miss_smoke_img,background_img,slash_se
+from asset_loader import (samurai_img, samurai_slash_img,blade_wave_img,
+                          samurai_miss_img,miss_smoke_img,background_img,
+                          slash_se,play_bgm,stop_bgm)
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
 
 # 定数
@@ -42,6 +44,14 @@ def run_game_scene(screen, clock):
     戻り値: (final_score, perfect_nums, miss_nums)
     """
     # --- 初期化 ---
+    start_ticks = pygame.time.get_ticks()
+    bgm_started = False
+    bgm_end_time = None  #BGM終了後のcurrent_timeを記録
+    notes = []           # 生成済みノーツ
+    smoke_effects = []
+    font = pygame.font.Font(None, 48)
+    feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
+    
     # サムライ画像位置設定
     _, img_h = samurai_img.get_size()
     margin_x, margin_y = 50, 30
@@ -650,17 +660,9 @@ def run_game_scene(screen, clock):
     {"time": 179800, "lane": 1}
 
     ]
-    notes = []           # 生成済みノーツ
-    smoke_effects = []
-    start_ticks = pygame.time.get_ticks()
-    font = pygame.font.Font(None, 48)
-    feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
 
     running = True
-    score = 0
-    combo = 0
-    perfect_nums = 0
-    miss_nums = 0
+    score = combo = perfect_nums = miss_nums = 0
     miss_timer = -9999
     miss_samurai_duration = 300  #miss時侍画像切り替え時間
     miss_effect_duration = 300   #miss時エフェクト表示時間
@@ -671,6 +673,19 @@ def run_game_scene(screen, clock):
     
     while running:
         current_time = pygame.time.get_ticks() - start_ticks
+        
+        #7秒後にBGM再生開始
+        if not bgm_started and current_time >= 7000:
+            play_bgm("kiwami_bgm.mp3", loops=0, volume=1.0)
+            bgm_started = True
+        #BGM終了を検知したら時刻を記録し停止
+        if bgm_started and not pygame.mixer.music.get_busy():
+            stop_bgm()
+            bgm_started = False
+            bgm_end_time = current_time
+        #BGMから3秒後にシーン終了
+        if bgm_end_time is not None and current_time - bgm_end_time >= 3000:
+            running = False
 
         # ノーツ生成
         for nd in notes_data[:]:
@@ -820,5 +835,8 @@ def run_game_scene(screen, clock):
             n for n in notes
             if (not n.judged)
             or (hasattr (n, 'miss_time') and current_time - n.miss_time <= miss_effect_duration)]
-
+    
+    if bgm_started:
+        stop_bgm()
+    
     return score, perfect_nums, miss_nums

@@ -4,7 +4,7 @@
 # scenes/result_scene.py
 import pygame
 pygame.init()
-pygame.display.set_mode((100, 100))  # 가짜 display 열기
+pygame.display.set_mode((1000, 600))  # 가짜 display 열기
 
 import sys
 import os
