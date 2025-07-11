@@ -1,7 +1,7 @@
 import pygame
 from asset_loader import (samurai_img, samurai_slash_img,blade_wave_img,
                           samurai_miss_img,miss_smoke_img,background_img,
-                          slash_se,play_bgm,stop_bgm)
+                          slash_perfect_se,slash_good_se,play_bgm,stop_bgm)
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE,NOTE_SPEED as NOTE_SPEED_FP
 
 # 定数
@@ -138,7 +138,7 @@ def run_game_scene(screen, clock):
                         score += 100
                         combo += 1
                         perfect_nums += 1
-                        slash_se.play()
+                        slash_perfect_se.play()
                         feedbacks.append({
                             'text' : '良',
                             'pos'  : (n.rect.centerx, n.rect.y - 20),
@@ -148,7 +148,7 @@ def run_game_scene(screen, clock):
                         n.judged = True
                         combo += 1
                         miss_nums += 1
-                        slash_se.play()
+                        slash_good_se.play()
                         feedbacks.append({
                             'text' : '可',
                             'pos'  : (n.rect.centerx, n.rect.y - 20),
