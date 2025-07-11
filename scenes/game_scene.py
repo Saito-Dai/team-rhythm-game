@@ -212,12 +212,11 @@ def run_game_scene(screen, clock):
         if current_lane is not None and current_time - slash_timer < slash_duration:
             #レーンの判定ラインX座標
             fx = HIT_LINE_X
-            #Y座標は押されたレーンの中央当たりか固定の高さ
             fy = LANE_Y[current_lane] + LANE_HEIGHT // 2
             screen.blit(blade_wave_img,
                         (fx - blade_wave_img.get_width(),
                          fy - blade_wave_img.get_height() // 2))
-        
+            
         # 判定フィードバックを短時間ノーツ上に表示
         for fb in feedbacks[:]:
             if current_time - fb['time'] < 500:
