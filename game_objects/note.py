@@ -1,9 +1,14 @@
 # note.py
 import pygame 
+from asset_loader import get_note_speed
+
 
 NOTE_WIDTH = 10
 NOTE_HEIGHT = 50
-NOTE_SPEED = 5 # ピクセル/フレーム
+
+def get_current_note_speed():
+    return 5 * get_note_speed()
+
 
 # 色の定義 (RGB形式)
 WHITE = (255, 255, 255)
@@ -36,7 +41,7 @@ class Note:
         # Rect(left, top, width, height)
         self.rect = pygame.Rect(x, y, NOTE_WIDTH, NOTE_HEIGHT)
         
-        self.speed = NOTE_SPEED  # ノーツの移動速度 (ピクセル/フレーム)。
+        self.speed = get_current_note_speed()  # ノーツの移動速度 (ピクセル/フレーム)。
         self.color = color       # ノーツの色。
         self.target_hit_time = target_hit_time  # 判定の正確さのための目標時間。
         self.judged = False      # このノーツが既に判定済み (PerfectまたはMiss) かどうかを示すフラグ。

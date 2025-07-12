@@ -59,12 +59,12 @@ class SettingsScene:
 
         self.note_slider = Slider(
             SLIDER_X, NOTE_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
-            0.5, 3.0, self.config.get('note_speed', 1.0)
+            0.5, 3.0, self.config.get('幽霊の速さ', 1.0)
         )
 
         self.bgm_slider = Slider(
             SLIDER_X, BGM_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
-            0.0, 1.0, self.config.get('bgm_volume', 0.5)
+            0.0, 1.0, self.config.get('音量', 0.5)
         )
 
         self.background = background_img
@@ -141,17 +141,17 @@ class SettingsScene:
 
 
             # EXIT文字のみ（背景なし）
-            quit_text = big_font.render("EXIT", True, (0, 0, 0))
+            quit_text = big_font.render("戻る", True, (0, 0, 0))
             text_rect = quit_text.get_rect(center=self.quit_button_rect.center)
             self.screen.blit(quit_text, text_rect)
 
 
             # スライダーラベル（小さいフォント）
             note_txt = small_font.render(
-                f"Note Speed: {self.note_slider.value:.1f}x", True, (0, 0, 0)
+                f"速さ: {self.note_slider.value:.1f}x", True, (0, 0, 0)
             )
             bgm_txt = small_font.render(
-                f"BGM Volume: {int(self.bgm_slider.value * 100)}%", True, (0, 0, 0)
+                f"音量: {int(self.bgm_slider.value * 100)}%", True, (0, 0, 0)
             )
             self.screen.blit(note_txt, (SLIDER_X, NOTE_Y - 60))
             self.screen.blit(bgm_txt, (SLIDER_X, BGM_Y - 60))
