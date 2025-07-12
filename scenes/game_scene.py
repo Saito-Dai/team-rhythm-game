@@ -1,7 +1,8 @@
 import pygame
 from asset_loader import (samurai_img, samurai_slash_img,blade_wave_img,
                           samurai_miss_img,miss_smoke_img,background_img,
-                          slash_perfect_se,slash_good_se,play_bgm,stop_bgm)
+                          slash_perfect_se,slash_good_se,music_start_se,
+                          YujiBoku_font,play_bgm,stop_bgm)
 from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE,NOTE_SPEED as NOTE_SPEED_FP
 
 # 定数
@@ -16,6 +17,7 @@ HIT_LINE_X = SCREEN_WIDTH - LANE_WIDTH
 NOTE_SPEED = NOTE_WIDTH  # 調整不要、Note内部で設定
 TRAVEL_MS = LANE_WIDTH / NOTE_SPEED 
 FRAME_MS = 1000 / 60
+BLACK = (0, 0, 0)
 
 # レーンY座標計算
 _total_lanes_height = NUM_LANES * LANE_HEIGHT + (NUM_LANES - 1) * LANE_GAP
@@ -48,11 +50,12 @@ def run_game_scene(screen, clock):
     """
     # --- 初期化 ---
     start_ticks = pygame.time.get_ticks()
+    start_se_played = False
     bgm_started = False
     bgm_end_time = None  #BGM終了後のcurrent_timeを記録
     notes = []           # 生成済みノーツ
     smoke_effects = []
-    font = pygame.font.Font(None, 48)
+    font = YujiBoku_font
     feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
     
     # サムライ画像位置設定
@@ -62,11 +65,33 @@ def run_game_scene(screen, clock):
     pos_y = SCREEN_HEIGHT - img_h - margin_y
 
     # 譜面データ: time=ms, lane=0～NUM_LANES-1
-    # 最初のノーツは必ず2500以上
+    # 曲の開始が7秒後であることに注意。
+    bar_ms = 60000 / 168 * 4          #BPM168において一小節間のms
+    # 各音符の長さを変数化
+    quarter_ms    = bar_ms / 4        # 四分音符
+    eighth_ms     = quarter_ms / 2    # 八分音符
+    sixteenth_ms  = quarter_ms / 4    # 十六分音符
+    thirty_second_ms = quarter_ms / 8
     
     notes_data = [
-        {"time": 3000, "lane": 0},
-
+        {"time": 6850 + bar_ms, "lane":0},
+        {"time": 6850 + bar_ms * 2, "lane":0},
+        {"time": 6850 + bar_ms * 3, "lane":0},
+        {"time": 6850 + bar_ms * 4, "lane":0},
+        {"time": 6850 + bar_ms * 5, "lane":0},
+        {"time": 6850 + bar_ms * 6, "lane":0},
+        {"time": 6850 + bar_ms * 7, "lane":0},
+        {"time": 6850 + bar_ms * 8, "lane":0},
+        {"time": 6850 + bar_ms * 8 + quarter_ms, "lane":0},
+        {"time": 6850 + bar_ms * 8 + quarter_ms * 2, "lane":0},
+        {"time": 6850 + bar_ms * 8 + quarter_ms * 3, "lane":0},
+        {"time": 6850 + bar_ms * 8 + quarter_ms * 4, "lane":0},
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 1, "lane":0},
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 2, "lane":0},
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 3, "lane":0},
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 4, "lane":0}, 
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 5, "lane":0}, 
+        {"time": 6850 + bar_ms * 9 + eighth_ms * 6, "lane":0},
     ]
 
     running = True
@@ -84,10 +109,19 @@ def run_game_scene(screen, clock):
     
     while running:
         current_time = pygame.time.get_ticks() - start_ticks
-        
+        #フェードイン処理(開始一秒)
+        if current_time < 1000:
+            fade_alpha = 255 - int((current_time / 1000) * 255)
+        else:
+            fade_alpha = 0
+            
         for n in notes:
             n.update()
             
+        #1秒後に開始SE再生
+        if not start_se_played and current_time >= 1000:
+            music_start_se.play()
+            start_se_played = True
         #7秒後にBGM再生開始
         if not bgm_started and current_time >= 7000:
             play_bgm("kiwami_bgm.mp3", loops=0, volume=1.0)
@@ -180,8 +214,13 @@ def run_game_scene(screen, clock):
         # ESCキーでシーン終了
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             running = False
-            
+        
+        #背景描画
         screen.blit(background_img, (0, 0))    
+        
+        # 曲名表示(画面左上)
+        music_title_surf = font.render("曲目： 極み", True, BLACK)
+        screen.blit(music_title_surf, (20, 20))
         
         # 侍の描画
         if current_time - miss_timer < miss_samurai_duration:
@@ -226,7 +265,7 @@ def run_game_scene(screen, clock):
                 feedbacks.remove(fb)
                 
         # スコア表示(画面右上)
-        score_surf = font.render(f"得点：{score}", True, WHITE)
+        score_surf = font.render(f"得点：{score}", True, BLACK)
         screen.blit(
             score_surf,
             (SCREEN_WIDTH - score_surf.get_width() - 20, 20)
@@ -234,11 +273,18 @@ def run_game_scene(screen, clock):
         
         # コンボ表示(侍頭上)
         if combo > 1:
-            combo_surf = font.render(f"{combo}連", True, WHITE)
+            combo_surf = font.render(f"{combo}連！", True, WHITE)
             screen.blit(
                 combo_surf,
                 (pos_x, pos_y - combo_surf.get_height() - 10)
             )
+            
+        #フェードイン用オーバーレイ
+        if fade_alpha > 0:
+            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            overlay.fill((0, 0, 0))
+            overlay.set_alpha(fade_alpha)
+            screen.blit(overlay, (0, 0))
 
         # 画面更新
         pygame.display.flip()

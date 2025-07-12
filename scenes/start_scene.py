@@ -21,9 +21,9 @@ def run_start_scene(screen, clock):
         screen.blit(background, (0, 0))
         
         # --- ボタンテキストを描画 ---
-        start_text = font.render("START", True, (0, 0, 0))
-        option_text = font.render("OPTION", True, (0, 0, 0))
-        quit_text = font.render("QUIT", True, (0, 0, 0))
+        start_text = font.render("いざ勝負", True, (0, 0, 0))
+        option_text = font.render("設定", True, (0, 0, 0))
+        quit_text = font.render("ゲーム終了", True, (0, 0, 0))
 
         # テキストをボタンの中央に配置
         start_text_rect = start_text.get_rect(center=start_button_rect.center)

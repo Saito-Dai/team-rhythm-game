@@ -60,18 +60,18 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
             screen.fill((0, 0, 0))
 
         # タイトル
-        result_title = YujiBoku_font.render("Game Over!", True, BLACK)
+        result_title = YujiBoku_font.render("無念！", True, BLACK)
         screen.blit(result_title, (350, 50))
 
         # スコア表示
-        final_score_text = font_small.render(f"Score: {final_score}", True, BLACK)
+        final_score_text = font_small.render(f"得点: {final_score}", True, BLACK)
         screen.blit(final_score_text, (150, 140))
 
         # PerfectとMissの表示
-        perfect_text = font_small.render(f"斬った悪霊 (Perfect): {perfect_nums}", True, BLACK)
+        perfect_text = font_small.render(f"斬った悪霊 (良): {perfect_nums}", True, BLACK)
         screen.blit(perfect_text, (150, 220))
 
-        miss_text = font_small.render(f"逃げられた悪霊 (Miss): {miss_nums}", True, BLACK)
+        miss_text = font_small.render(f"逃げられた悪霊 (不可): {miss_nums}", True, BLACK)
         screen.blit(miss_text, (150, 300))
 
         # 命中率計算と表示
@@ -84,11 +84,11 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
         screen.blit(accuracy_text, (300, 380))
 
         # ボタンの描画
-        restart_button_text = font_small.render("Restart", True, BLACK)
+        restart_button_text = font_small.render("最初から", True, BLACK)
         restart_button_rect = restart_button_text.get_rect(center=(500, 470))
         screen.blit(restart_button_text, restart_button_rect)
 
-        main_menu_button_text = font_small.render("Main Menu", True, BLACK)
+        main_menu_button_text = font_small.render("タイトルへ", True, BLACK)
         main_menu_button_rect = main_menu_button_text.get_rect(center=(500, 520))
         screen.blit(main_menu_button_text, main_menu_button_rect)
 

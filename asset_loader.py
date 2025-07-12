@@ -40,9 +40,10 @@ samurai_img = load_image("samurai.png",(200, 300))
 samurai_slash_img = load_image("samurai_slash.png",(200,300))
 samurai_miss_img = load_image("samurai_miss.png",(200,300))
 blade_wave_img = load_image("blade_wave.png",(150,150))
-miss_smoke_img = load_image("miss_effect.png")
+miss_smoke_img = load_image("miss_effect.png", (75, 75))
 background_img = load_image("background.png",(1000, 600)) 
 result_test_img = load_image("result_test.png")
+
 YujiBoku_font = load_font('YujiBoku-Regular.ttf', 50)
 YujiBoku_font_small = load_font('YujiBoku-Regular.ttf', 30)
 
@@ -62,6 +63,7 @@ def load_sound(name: str, volume: float = 1.0) -> pygame.mixer.Sound:
     sound.set_volume(volume)
     return sound
 
+music_start_se = load_sound("music_start_se.mp3")
 slash_perfect_se = load_sound("slash_perfect_se.mp3")
 slash_good_se = load_sound("slash_good_se.mp3")
 
