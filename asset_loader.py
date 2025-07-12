@@ -39,12 +39,15 @@ def load_font(name, size):
 samurai_img = load_image("samurai.png",(200, 300)) 
 samurai_slash_img = load_image("samurai_slash.png",(200,300))
 samurai_miss_img = load_image("samurai_miss.png",(200,300))
+start_scene_samurai = load_image("start_scene_samurai.png",(707, 500))
 blade_wave_img = load_image("blade_wave.png",(150,150))
 miss_smoke_img = load_image("miss_effect.png", (75, 75))
 background_img = load_image("background.png",(1000, 600)) 
 result_test_img = load_image("result_test.png")
 start_img = load_image("start_screen.png",(1000, 600)) 
 
+YujiBoku_font_big = load_font('YujiBoku-Regular.ttf', 85)
+YujiBoku_font_little_big = load_font('YujiBoku-Regular.ttf', 70)
 YujiBoku_font = load_font('YujiBoku-Regular.ttf', 50)
 YujiBoku_font_small = load_font('YujiBoku-Regular.ttf', 30)
 
