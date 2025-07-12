@@ -1,7 +1,7 @@
 # note.py
 import pygame 
 
-NOTE_WIDTH = 50
+NOTE_WIDTH = 10
 NOTE_HEIGHT = 50
 NOTE_SPEED = 5 # ピクセル/フレーム
 
