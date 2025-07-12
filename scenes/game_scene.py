@@ -3,8 +3,8 @@ from asset_loader import (samurai_img, samurai_slash_img,blade_wave_img,
                           samurai_miss_img,miss_smoke_img,background_img,
                           slash_perfect_se,slash_good_se,music_start_se,
                           YujiBoku_font,play_bgm,stop_bgm)
-from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE,NOTE_SPEED as NOTE_SPEED_FP
-
+from game_objects.note import Note, NOTE_HEIGHT, NOTE_WIDTH, WHITE
+from asset_loader import get_note_speed, get_bgm_volume
 # 定数
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
@@ -102,6 +102,8 @@ def run_game_scene(screen, clock):
     slash_timer = 0              #斬撃エフェクト表示中のタイマー
     slash_duration = 200         #斬撃エフェクト表示時間
     current_lane = None          #斬撃エフェクトを出すレーン
+    note_speed = get_note_speed()
+    NOTE_SPEED_FP = 5 * note_speed
     travel_frames = LANE_WIDTH / NOTE_SPEED_FP
     TRAVEL_MS = travel_frames * FRAME_MS
     
@@ -120,11 +122,12 @@ def run_game_scene(screen, clock):
             
         #1秒後に開始SE再生
         if not start_se_played and current_time >= 1000:
+            music_start_se.set_volume(get_bgm_volume())
             music_start_se.play()
             start_se_played = True
         #7秒後にBGM再生開始
         if not bgm_started and current_time >= 7000:
-            play_bgm("kiwami_bgm.mp3", loops=0, volume=1.0)
+            play_bgm("kiwami_bgm.mp3", loops=0, volume=get_bgm_volume())
             bgm_started = True
         #BGM終了を検知したら時刻を記録し停止
         if bgm_started and not pygame.mixer.music.get_busy():
@@ -172,6 +175,7 @@ def run_game_scene(screen, clock):
                         score += 100
                         combo += 1
                         perfect_nums += 1
+                        slash_perfect_se.set_volume(get_bgm_volume())
                         slash_perfect_se.play()
                         feedbacks.append({
                             'text' : '良',
@@ -182,6 +186,7 @@ def run_game_scene(screen, clock):
                         n.judged = True
                         combo += 1
                         miss_nums += 1
+                        slash_good_se.set_volume(get_bgm_volume())
                         slash_good_se.play()
                         feedbacks.append({
                             'text' : '可',

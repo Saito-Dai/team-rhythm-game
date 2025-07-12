@@ -43,6 +43,7 @@ blade_wave_img = load_image("blade_wave.png",(150,150))
 miss_smoke_img = load_image("miss_effect.png", (75, 75))
 background_img = load_image("background.png",(1000, 600)) 
 result_test_img = load_image("result_test.png")
+start_img = load_image("start_screen.png",(1000, 600)) 
 
 YujiBoku_font = load_font('YujiBoku-Regular.ttf', 50)
 YujiBoku_font_small = load_font('YujiBoku-Regular.ttf', 30)
@@ -85,3 +86,38 @@ def play_bgm(file: str, loops: int = 0, volume: float = 0.5):
 
 def stop_bgm():
     pygame.mixer.music.stop()
+
+#configの設定を読み取る
+import json
+
+# プロジェクトのルートまでのパス
+
+CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+
+def load_config():
+    """
+    config.json 全体を辞書として読み込む
+    """
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"[Error] config.jsonが見つかりません: {CONFIG_PATH}")
+        return {}
+    except json.JSONDecodeError:
+        print("[Error] config.jsonの形式が不正です")
+        return {}
+
+def get_config_value(key, default=None):
+    """
+    特定のキーだけを取得
+    """
+    config = load_config()
+    return config.get(key, default)
+
+def get_note_speed():
+    return get_config_value('note_speed')
+
+def get_bgm_volume():
+    return get_config_value('bgm_volume')
+

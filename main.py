@@ -100,9 +100,11 @@ from scenes.start_scene import run_start_scene
 from scenes.option_scene import run_option_scene
 from scenes.game_scene import run_game_scene
 from scenes.result_scene import run_result_scene
+from scenes.run_start_screen import run_start_screen
 
 
 def main():
+    run_start_screen(screen, clock)
     while True:
         choice = run_start_scene(screen, clock)
 
@@ -123,6 +125,9 @@ def main():
 
         elif choice == "option":
             run_option_scene(screen, clock)
+            import asset_loader
+            import importlib
+            importlib.reload(asset_loader)
 
         elif choice == "quit":
             break
