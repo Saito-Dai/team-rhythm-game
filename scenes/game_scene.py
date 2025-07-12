@@ -14,8 +14,11 @@ NUM_LANES = 4
 LANE_WIDTH = 600
 HIT_MARGIN = 100
 HIT_LINE_X = SCREEN_WIDTH - LANE_WIDTH
-NOTE_SPEED = NOTE_WIDTH  # 調整不要、Note内部で設定
+NOTE_SPEED = NOTE_WIDTH                # 調整不要、Note内部で設定
 TRAVEL_MS = LANE_WIDTH / NOTE_SPEED 
+FADE_DURATION = 4000                   #開始時フェードインにかける時間
+START_DELAY_MS = 6850                  #曲開始前のノーツ待機時間
+
 FRAME_MS = 1000 / 60
 BLACK = (0, 0, 0)
 
@@ -57,6 +60,7 @@ def run_game_scene(screen, clock):
     smoke_effects = []
     font = YujiBoku_font
     feedbacks = []       # {'text': str, 'pos': (x,y), 'time': ms} の辞書を格納
+    scheduled_sounds = []
     
     # サムライ画像位置設定
     _, img_h = samurai_img.get_size()
@@ -68,30 +72,197 @@ def run_game_scene(screen, clock):
     # 曲の開始が7秒後であることに注意。
     bar_ms = 60000 / 168 * 4          #BPM168において一小節間のms
     # 各音符の長さを変数化
-    quarter_ms    = bar_ms / 4        # 四分音符
-    eighth_ms     = quarter_ms / 2    # 八分音符
-    sixteenth_ms  = quarter_ms / 4    # 十六分音符
-    thirty_second_ms = quarter_ms / 8
+    quarter_ms    = bar_ms / 4        # 4分音符
+    eighth_ms     = quarter_ms / 2    # 8分音符
+    sixteenth_ms  = quarter_ms / 4    # 16分音符
+    thirty_second_ms = quarter_ms / 8 # 32分音符
     
     notes_data = [
-        {"time": 6850 + bar_ms, "lane":0},
-        {"time": 6850 + bar_ms * 2, "lane":0},
-        {"time": 6850 + bar_ms * 3, "lane":0},
-        {"time": 6850 + bar_ms * 4, "lane":0},
-        {"time": 6850 + bar_ms * 5, "lane":0},
-        {"time": 6850 + bar_ms * 6, "lane":0},
-        {"time": 6850 + bar_ms * 7, "lane":0},
-        {"time": 6850 + bar_ms * 8, "lane":0},
-        {"time": 6850 + bar_ms * 8 + quarter_ms, "lane":0},
-        {"time": 6850 + bar_ms * 8 + quarter_ms * 2, "lane":0},
-        {"time": 6850 + bar_ms * 8 + quarter_ms * 3, "lane":0},
-        {"time": 6850 + bar_ms * 8 + quarter_ms * 4, "lane":0},
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 1, "lane":0},
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 2, "lane":0},
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 3, "lane":0},
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 4, "lane":0}, 
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 5, "lane":0}, 
-        {"time": 6850 + bar_ms * 9 + eighth_ms * 6, "lane":0},
+        #イントロ 
+        {"time": START_DELAY_MS + bar_ms, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 5, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 6, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 7, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 8, "lane":0},
+        #最初の４つの掛け声
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
+        #三味線パート
+        {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+
+                        
+        {"time": START_DELAY_MS + bar_ms * 13 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 4, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 5, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 6, "lane":0},
+
+        {"time": START_DELAY_MS + bar_ms * 14 , "lane":0},        
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 4, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 5, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 6, "lane":0},
+
+
+        {"time": START_DELAY_MS + bar_ms * 15 , "lane":0},        
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 4, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 5, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 6, "lane":0},
+
+
+        {"time": START_DELAY_MS + bar_ms * 16 , "lane":0},    
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 4, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 5, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 6, "lane":0},
+
+        #尺八パート
+        {"time": START_DELAY_MS + bar_ms * 17, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 17 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 18 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 18 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 18 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 18 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 21, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 21 + sixteenth_ms, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 21 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 22 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 22 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 22 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 22 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 24 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 4 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 5 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 6 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 25 + eighth_ms * 7 , "lane":0},
+
+        
+        {"time": START_DELAY_MS + bar_ms * 26 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 4 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 5 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 6 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 26 + eighth_ms * 7 , "lane":0},
+
+        
+        {"time": START_DELAY_MS + bar_ms * 27 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 4 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 5 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 6 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 7 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 27 + eighth_ms * 8 , "lane":0},
+        
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 4 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 5 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 6 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 7 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 28 + eighth_ms * 8 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 29 + quarter_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 29 + quarter_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 29 + quarter_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 29 + quarter_ms * 4 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 30 + quarter_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 30 + quarter_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 30 + quarter_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 30 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 31 + quarter_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 31 + quarter_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 31 + quarter_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 31 + quarter_ms * 4, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 32 + quarter_ms , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 32 + quarter_ms * 2 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 32 + quarter_ms * 3 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 32 + quarter_ms * 4, "lane":0},
+        #サビ前三味線パート
+        {"time": START_DELAY_MS + bar_ms * 33 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 33 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 33 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 33 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 33 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 34 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 34 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 34 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 34 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 34 + quarter_ms * 3 + eighth_ms * 2, "lane":0},    
+        {"time": START_DELAY_MS + bar_ms * 35 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 35 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 35 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 35 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 35 + quarter_ms * 3 + eighth_ms * 2, "lane":0},    
+        {"time": START_DELAY_MS + bar_ms * 36 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 36 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 36 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 36 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 36 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 37 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 37 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 37 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 37 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 37 + quarter_ms * 3 + eighth_ms * 2, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 38 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 38 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 38 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 38 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 38 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 39 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 39 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 39 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 39 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 39 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 40 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 40 + quarter_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 40 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 40 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 40 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
+        
+        {"time": START_DELAY_MS + bar_ms * 41 + quarter_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 41 + quarter_ms * 2 + sixteenth_ms, "lane":0},
+        
+               
     ]
 
     running = True
@@ -111,9 +282,10 @@ def run_game_scene(screen, clock):
     
     while running:
         current_time = pygame.time.get_ticks() - start_ticks
+                
         #フェードイン処理(開始一秒)
-        if current_time < 1000:
-            fade_alpha = 255 - int((current_time / 1000) * 255)
+        if current_time < FADE_DURATION:
+            fade_alpha = 255 - int((current_time / FADE_DURATION) * 255)
         else:
             fade_alpha = 0
             
