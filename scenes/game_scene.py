@@ -93,7 +93,7 @@ def run_game_scene(screen, clock):
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms, "lane":3},
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 2, "lane":2},
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 3, "lane":1},
-        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
+        #{"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
         #三味線パート
         {"time": START_DELAY_MS + bar_ms * 9  , "lane":0},
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 1, "lane":0},
