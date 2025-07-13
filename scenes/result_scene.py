@@ -69,14 +69,7 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
 
         # PerfectとMissの表示
         perfect_text = font_small.render(f"斬った悪霊 (良): {perfect_nums}", True, BLACK)
-<<<<<<< HEAD
         screen.blit(perfect_text, (150, 220))
-=======
-        screen.blit(perfect_text, (150, 180))
-
-        perfect_text = font_small.render(f"斬った悪霊 (可): {good_nums}", True, BLACK)
-        screen.blit(perfect_text, (150, 240))
->>>>>>> main
 
         miss_text = font_small.render(f"逃げられた悪霊 (不可): {miss_nums}", True, BLACK)
         screen.blit(miss_text, (150, 300))
