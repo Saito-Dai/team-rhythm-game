@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from asset_loader import background_img, YujiBoku_font
+from asset_loader import background_img, YujiBoku_font, load_font
 
 
 # --- このファイル内で直接定数を定義します ---
@@ -29,9 +29,10 @@ GAME_STATE_START_SCREEN = 0
 GAME_STATE_RESULT_SCREEN = 3 # このシーン自身の状態
 
 # ----------------------------------------
-def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
+def run_result_scene(screen, clock, final_score, perfect_nums, good_nums,  miss_nums):
     pygame.font.init()
-    font_small = YujiBoku_font
+    font = YujiBoku_font
+    font_small = load_font('YujiBoku-Regular.ttf', 40)
 
     # 画像のロードとサイズ調整
     background_image = background_img
@@ -59,17 +60,20 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
         else:
             screen.fill((0, 0, 0))
 
-        # タイトル
+
         result_title = YujiBoku_font.render("お見事！", True, BLACK)
         screen.blit(result_title, (350, 50))
 
         # スコア表示
         final_score_text = font_small.render(f"得点: {final_score}", True, BLACK)
-        screen.blit(final_score_text, (150, 140))
+        screen.blit(final_score_text, (150, 120))
 
         # PerfectとMissの表示
         perfect_text = font_small.render(f"斬った悪霊 (良): {perfect_nums}", True, BLACK)
-        screen.blit(perfect_text, (150, 220))
+        screen.blit(perfect_text, (150, 180))
+
+        perfect_text = font_small.render(f"斬った悪霊 (可): {perfect_nums}", True, BLACK)
+        screen.blit(perfect_text, (150, 240))
 
         miss_text = font_small.render(f"逃げられた悪霊 (不可): {miss_nums}", True, BLACK)
         screen.blit(miss_text, (150, 300))
@@ -80,15 +84,15 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
         if total_notes > 0:
             accuracy = (perfect_nums / total_notes) * 100
 
-        accuracy_text = font_small.render(f"命中率: {accuracy:.1f}%", True, BLACK)
+        accuracy_text = font.render(f"命中率: {accuracy:.1f}%", True, BLACK)
         screen.blit(accuracy_text, (300, 380))
 
         # ボタンの描画
-        restart_button_text = font_small.render("最初から", True, BLACK)
+        restart_button_text = font.render("最初から", True, BLACK)
         restart_button_rect = restart_button_text.get_rect(center=(500, 470))
         screen.blit(restart_button_text, restart_button_rect)
 
-        main_menu_button_text = font_small.render("タイトルへ", True, BLACK)
+        main_menu_button_text = font.render("タイトルへ", True, BLACK)
         main_menu_button_rect = main_menu_button_text.get_rect(center=(500, 520))
         screen.blit(main_menu_button_text, main_menu_button_rect)
 
