@@ -60,7 +60,7 @@ def run_result_scene(screen, clock, final_score, perfect_nums, miss_nums):
             screen.fill((0, 0, 0))
 
         # タイトル
-        result_title = YujiBoku_font.render("無念！", True, BLACK)
+        result_title = YujiBoku_font.render("お見事！", True, BLACK)
         screen.blit(result_title, (350, 50))
 
         # スコア表示
