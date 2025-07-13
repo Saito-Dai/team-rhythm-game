@@ -93,7 +93,7 @@ def run_game_scene(screen, clock):
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms, "lane":3},
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 2, "lane":2},
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 3, "lane":1},
-        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
+        #{"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
         #三味線パート
         {"time": START_DELAY_MS + bar_ms * 9  , "lane":0},
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 1, "lane":0},
@@ -440,7 +440,7 @@ def run_game_scene(screen, clock):
     ]
 
     running = True
-    score = combo = perfect_nums = miss_nums = 0
+    score = combo = perfect_nums = miss_nums = good_nums =  0
     miss_timer = -9999
     miss_samurai_duration = 300  #miss時侍画像切り替え時間
     miss_effect_duration = 300   #miss時エフェクト表示時間
@@ -531,8 +531,9 @@ def run_game_scene(screen, clock):
                         })
                     elif delta <= 200:
                         n.judged = True
+                        score += 50
                         combo += 1
-                        miss_nums += 1
+                        good_nums += 1
                         slash_good_se.set_volume(get_se_volume())
                         slash_good_se.play()
                         feedbacks.append({
@@ -678,4 +679,4 @@ def run_game_scene(screen, clock):
     if bgm_started:
         stop_bgm()
     
-    return score, perfect_nums, miss_nums
+    return score, perfect_nums, good_nums, miss_nums
