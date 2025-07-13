@@ -124,3 +124,6 @@ def get_note_speed():
 def get_bgm_volume():
     return get_config_value('bgm_volume')
 
+def get_se_volume():
+    return get_config_value('se_volume')
+
