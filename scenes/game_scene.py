@@ -14,10 +14,11 @@ NUM_LANES = 4
 LANE_WIDTH = 600
 HIT_MARGIN = 100
 HIT_LINE_X = SCREEN_WIDTH - LANE_WIDTH
-NOTE_SPEED = NOTE_WIDTH                # 調整不要、Note内部で設定
+NOTE_SPEED = NOTE_WIDTH                    # 調整不要、Note内部で設定
 TRAVEL_MS = LANE_WIDTH / NOTE_SPEED 
-FADE_DURATION = 4000                   #開始時フェードインにかける時間
-START_DELAY_MS = 6850                  #曲開始前のノーツ待機時間
+FADE_DURATION = 4000                       #開始時フェードインにかける時間
+START_DELAY_MS = 7000                      #曲開始前のノーツ待機時間
+BGM_STOP_AFTER_MS = 1 * 60 * 1000 + 46 * 1000 #1:46を示す。
 
 FRAME_MS = 1000 / 60
 BLACK = (0, 0, 0)
@@ -55,6 +56,7 @@ def run_game_scene(screen, clock):
     start_ticks = pygame.time.get_ticks()
     start_se_played = False
     bgm_started = False
+    bgm_play_start = None
     bgm_end_time = None  #BGM終了後のcurrent_timeを記録
     notes = []           # 生成済みノーツ
     smoke_effects = []
@@ -88,9 +90,9 @@ def run_game_scene(screen, clock):
         {"time": START_DELAY_MS + bar_ms * 7, "lane":0},
         {"time": START_DELAY_MS + bar_ms * 8, "lane":0},
         #最初の４つの掛け声
-        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms, "lane":3},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 2, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 3, "lane":1},
         {"time": START_DELAY_MS + bar_ms * 8 + quarter_ms * 4, "lane":0},
         #三味線パート
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 1, "lane":0},
@@ -98,55 +100,55 @@ def run_game_scene(screen, clock):
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3, "lane":0},
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3 + eighth_ms * 1, "lane":0},
         {"time": START_DELAY_MS + bar_ms * 9 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3 + eighth_ms * 1, "lane":0}, 
-
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 1, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 2, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 1, "lane":1}, 
+        {"time": START_DELAY_MS + bar_ms * 10 + quarter_ms * 3 + eighth_ms * 2, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 1, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 2, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 1, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 11 + quarter_ms * 3 + eighth_ms * 2, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 1, "lane":3},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 2, "lane":3},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3, "lane":3},
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3 + eighth_ms * 1, "lane":3}, 
+        {"time": START_DELAY_MS + bar_ms * 12 + quarter_ms * 3 + eighth_ms * 2, "lane":3}, 
                         
-        {"time": START_DELAY_MS + bar_ms * 13 , "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 , "lane":3},
         {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 4, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 5, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 6, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 2, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 3, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 4, "lane":3}, 
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 5, "lane":2}, 
+        {"time": START_DELAY_MS + bar_ms * 13 + eighth_ms * 6, "lane":1},
 
         {"time": START_DELAY_MS + bar_ms * 14 , "lane":0},        
-        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 1, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 1, "lane":1},
         {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 3, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 3, "lane":1},
         {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 4, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 5, "lane":0}, 
+        {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 5, "lane":1}, 
         {"time": START_DELAY_MS + bar_ms * 14 + eighth_ms * 6, "lane":0},
 
 
         {"time": START_DELAY_MS + bar_ms * 15 , "lane":0},        
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 2, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 4, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 5, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 6, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 1, "lane":1},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 2, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 3, "lane":3},
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 4, "lane":2}, 
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 5, "lane":1}, 
+        {"time": START_DELAY_MS + bar_ms * 15 + eighth_ms * 6, "lane":2},
 
 
-        {"time": START_DELAY_MS + bar_ms * 16 , "lane":0},    
-        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 1, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 2, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 16 , "lane":3},    
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 1, "lane":2},
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 2, "lane":1},
         {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 3, "lane":0},
-        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 4, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 5, "lane":0}, 
-        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 6, "lane":0},
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 4, "lane":1}, 
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 5, "lane":2}, 
+        {"time": START_DELAY_MS + bar_ms * 16 + eighth_ms * 6, "lane":1},
 
         #尺八パート
         {"time": START_DELAY_MS + bar_ms * 17, "lane":0},
@@ -301,8 +303,9 @@ def run_game_scene(screen, clock):
         if not bgm_started and current_time >= 7000:
             play_bgm("kiwami_bgm.mp3", loops=0, volume=get_bgm_volume())
             bgm_started = True
-        #BGM終了を検知したら時刻を記録し停止
-        if bgm_started and not pygame.mixer.music.get_busy():
+            bgm_play_start = current_time
+        #BGM_STOP_AFTER_MSに到達したらBGM終了
+        if bgm_started and (current_time - bgm_play_start) >= BGM_STOP_AFTER_MS:
             stop_bgm()
             bgm_started = False
             bgm_end_time = current_time
