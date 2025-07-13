@@ -1,11 +1,5 @@
 {
-<<<<<<< HEAD
   "note_speed": 2.01875,
   "bgm_volume": 0.5,
   "se_volume": 0.5
-=======
-  "note_speed": 1.0,
-  "bgm_volume": 0.5,
-  "se_volume": 0.5025
->>>>>>> 63ff394 (結果発表時の文字列を変更)
 }
