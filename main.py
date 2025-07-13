@@ -27,8 +27,8 @@ def main():
 
         if choice == "start":
             while True:
-                final_score, perfect_nums, miss_nums = run_game_scene(screen, clock)
-                result_choice = run_result_scene(screen, clock, final_score, perfect_nums, miss_nums)
+                final_score, perfect_nums, good_nums, miss_nums = run_game_scene(screen, clock)
+                result_choice = run_result_scene(screen, clock, final_score, perfect_nums, good_nums, miss_nums)
 
                 if result_choice == "quit":
                     pygame.quit()
