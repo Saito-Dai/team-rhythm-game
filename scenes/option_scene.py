@@ -13,7 +13,9 @@ from asset_loader import background_img, YujiBoku_font, YujiBoku_font_small
 WIDTH, HEIGHT = 1000, 600
 SLIDER_WIDTH, SLIDER_HEIGHT = 400, 20
 SLIDER_X = (WIDTH - SLIDER_WIDTH) // 2
-NOTE_Y, BGM_Y = HEIGHT // 3, HEIGHT // 2
+NOTE_Y = HEIGHT // 4
+BGM_Y = HEIGHT // 2
+SE_Y = (HEIGHT * 3) // 4
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config.json')
 
 
@@ -54,17 +56,30 @@ class SettingsScene:
     - 設定を保存
     """
     def __init__(self, screen):
+        BUTTON_WIDTH = 80
+        BUTTON_HEIGHT = 30
+        BUTTON_X_OFFSET = SLIDER_WIDTH + 20  # スライダーの右側
+
+        self.note_reset_rect = pygame.Rect(SLIDER_X + BUTTON_X_OFFSET, NOTE_Y - 15, BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.bgm_reset_rect = pygame.Rect(SLIDER_X + BUTTON_X_OFFSET, BGM_Y - 15, BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.se_reset_rect = pygame.Rect(SLIDER_X + BUTTON_X_OFFSET, SE_Y - 15, BUTTON_WIDTH, BUTTON_HEIGHT)
+
         self.screen = screen
         self.config = self.load_config()
 
         self.note_slider = Slider(
             SLIDER_X, NOTE_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
-            0.5, 3.0, self.config.get('幽霊の速さ', 1.0)
+            0.5, 3.0, self.config.get('note_speed', 1.0)
         )
 
         self.bgm_slider = Slider(
             SLIDER_X, BGM_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
-            0.0, 1.0, self.config.get('音量', 0.5)
+            0.0, 1.0, self.config.get('bgm_volume', 0.5)
+        )
+
+        self.se_slider = Slider(
+            SLIDER_X, SE_Y, SLIDER_WIDTH, SLIDER_HEIGHT,
+            0.0, 1.0, self.config.get('se_volume', 0.5)
         )
 
         self.background = background_img
@@ -87,6 +102,8 @@ class SettingsScene:
         """
         self.config['note_speed'] = self.note_slider.value
         self.config['bgm_volume'] = self.bgm_slider.value
+        self.config['se_volume'] = self.se_slider.value
+
         with open(CONFIG_PATH, 'w') as f:
             json.dump(self.config, f, indent=2)
 
@@ -124,6 +141,18 @@ class SettingsScene:
                     elif self.bgm_slider.rect.collidepoint(e.pos):
                         self.dragging_slider = self.bgm_slider
                         self.update_slider_value_from_pos(e.pos)
+                    elif self.se_slider.rect.collidepoint(e.pos):
+                        self.dragging_slider = self.se_slider
+                        self.update_slider_value_from_pos(e.pos)
+                    elif self.note_reset_rect.collidepoint(e.pos):
+                        self.note_slider.value = 1.0
+                        self.note_slider.update_handle()
+                    elif self.bgm_reset_rect.collidepoint(e.pos):
+                        self.bgm_slider.value = 0.5
+                        self.bgm_slider.update_handle()
+                    elif self.se_reset_rect.collidepoint(e.pos):
+                        self.se_slider.value = 0.5
+                        self.se_slider.update_handle()
 
                 elif e.type == pygame.MOUSEBUTTONUP:
                     self.dragging_slider = None
@@ -153,12 +182,40 @@ class SettingsScene:
             bgm_txt = small_font.render(
                 f"音量: {int(self.bgm_slider.value * 100)}%", True, (0, 0, 0)
             )
+            se_txt = small_font.render(
+                f"効果音: {int(self.se_slider.value * 100)}%", True, (0, 0, 0)
+            )
+            # --- 初期化 ボタンを描画 ---
+            button_color = (200, 200, 200)
+            text_color = (0, 0, 0)
+
+            reset_text = small_font.render("初期化", True, text_color)
+
+            self.screen.blit(
+                reset_text,
+                reset_text.get_rect(center=self.note_reset_rect.center)
+            )
+            self.screen.blit(
+                reset_text,
+                reset_text.get_rect(center=self.bgm_reset_rect.center)
+            )
+            self.screen.blit(
+                reset_text,
+                reset_text.get_rect(center=self.se_reset_rect.center)
+            )
+
+            
+            
+            self.screen.blit(se_txt, (SLIDER_X, SE_Y - 60))
             self.screen.blit(note_txt, (SLIDER_X, NOTE_Y - 60))
             self.screen.blit(bgm_txt, (SLIDER_X, BGM_Y - 60))
 
             # スライダー本体を描画
             self.note_slider.draw(self.screen)
             self.bgm_slider.draw(self.screen)
+            self.se_slider.draw(self.screen)
+
+
 
             # ガイドテキスト（大きいフォント）
             guide_text = big_font.render("スライダーをマウスで調整してください", True, (0, 0, 0))
