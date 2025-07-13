@@ -450,7 +450,7 @@ def run_game_scene(screen, clock):
         
         # コンボ表示(侍頭上)
         if combo > 1:
-            combo_surf = font.render(f"{combo}連！", True, WHITE)
+            combo_surf = font.render(f"{combo}連！", True, BLACK)
             screen.blit(
                 combo_surf,
                 (pos_x, pos_y - combo_surf.get_height() - 10)
